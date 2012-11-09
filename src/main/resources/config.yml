@@ -1,0 +1,1 @@
+promote:- pgs [user] [new]ranks:  default:    time_played: 0    next_rank: user    message: '&7You have been automatically assigned to &5default&7.'  user:    time_played: 5    next_rank: devoted    message: '&7You have advanced to &5user&7.'  devoted:    time_played: 10    next_rank: none    message: '&7You have advanced to &5devoted&7.'

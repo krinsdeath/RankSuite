@@ -1,0 +1,55 @@
+package net.krinsoft.ranksuite;
+
+/**
+ * @author krinsdeath
+ */
+public class RankedPlayer {
+
+    private RankCore plugin;
+    private String name;
+    private Rank current;
+    private double minutes;
+    private long login;
+    private boolean exempt;
+
+    public RankedPlayer(RankCore plugin, String name, Rank rank, int minutes, long login, boolean exempt) {
+        this.plugin = plugin;
+        this.name = name;
+        this.current = rank;
+        this.minutes = minutes;
+        this.login = login;
+        this.exempt = exempt;
+    }
+
+    public Rank getRank() {
+        return this.current;
+    }
+
+    public void setRank(Rank rank) {
+        this.current = rank;
+    }
+
+    public int getTimePlayed() {
+        return (int) this.minutes;
+    }
+
+    public boolean addTime() {
+        long time = System.currentTimeMillis();
+        this.minutes += ((time - this.login) / 1000 / 60);
+        this.login = time;
+        plugin.getDB().set(this.name, (int) this.minutes);
+        plugin.debug(this.name + "'s playtime has been incremented to " + this.minutes + " minute(s)!");
+        if (!exempt && this.current.getNextRank() != null && !this.current.getNextRank().equals("none")) {
+            Rank next = plugin.getRank(this.current.getNextRank());
+            if (next == null) {
+                plugin.debug("Next rank '" + this.current.getNextRank() + "' for '" + this.name + "' is null! Is there a mistake in 'config.yml'?");
+                return false;
+            }
+            if (next.getMinutesRequired() <= this.minutes) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+}

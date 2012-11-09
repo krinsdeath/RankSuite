@@ -1,0 +1,37 @@
+name: RankSuite
+main: net.krinsoft.ranksuite.RankCore
+version: maven-version-number
+
+commands:
+  ranksuite:
+    description: The base RankSuite command.
+    aliases: [rs]
+    usage: |
+      /<command>                        - Display this menu.
+      /<command> check                  - Check your current rank.
+      /<command> check [user]           - Check the specified user's rank.
+      /<command> add [user] [minutes]   - Add the specified amount of minutes to that user's time.
+      /<command> reset [user]           - Reset the specified user's play time and rank.
+      
+permissions:
+  ranksuite.*:
+    description: Allows access to all of RankSuite's features.
+    children:
+      ranksuite.check: true
+      ranksuite.check.other: true
+      ranksuite.add: true
+      ranksuite.add.other: true
+      ranksuite.reset: true
+      ranksuite.exempt: true
+  ranksuite.check:
+    description: Allows a user to check their own play stats.
+  ranksuite.check.other:
+    description: Allows a user to check another's play stats.
+  ranksuite.add:
+    description: Allows a user to add play time to their own stats.
+  ranksuite.add.other:
+    description: Allows a user to add play time to another's stats.
+  ranksuite.reset:
+    description: Allows a user to reset a user's play stats.
+  ranksuite.exempt:
+    description: Exempts the user from the auto-ranking feature.
