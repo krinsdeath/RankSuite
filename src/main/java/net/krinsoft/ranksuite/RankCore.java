@@ -1,5 +1,6 @@
 package net.krinsoft.ranksuite;
 
+import net.krinsoft.ranksuite.commands.CommandHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,6 +29,8 @@ public class RankCore extends JavaPlugin {
     private final static Pattern USER = Pattern.compile("\\[user\\]");
 
     private FileConfiguration db;
+
+    private CommandHandler commands;
 
     private Map<String, Rank> ranks = new HashMap<String, Rank>();
     private Map<String, RankedPlayer> players = new HashMap<String, RankedPlayer>();
@@ -62,6 +65,8 @@ public class RankCore extends JavaPlugin {
         }
         getDB();
 
+        commands = new CommandHandler(this);
+
         // register a scheduled task to update players dynamically
         getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
@@ -81,27 +86,8 @@ public class RankCore extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (args.length == 0) {
-            return false;
-        }
-        if (args.length >= 1) {
-            if (args[0].equalsIgnoreCase("check")) {
-                Player target;
-                if (args.length == 1 && !(sender instanceof Player)) {
-                    sender.sendMessage("From the console, you must supply a target.");
-                    return true;
-                } else {
-                    if (args.length == 1) {
-                        target = (Player) sender;
-                    } else {
-                        target = getServer().getPlayer(args[1]);
-                    }
-                }
-                checkRank(sender, target);
-                return true;
-            }
-        }
-        return false;
+        commands.runCommand(sender, label, args);
+        return true;
     }
 
     public FileConfiguration getDB() {
@@ -124,6 +110,14 @@ public class RankCore extends JavaPlugin {
             String msg = "[Debug] " + message;
             getLogger().info(msg);
         }
+    }
+
+    public RankedPlayer getPlayer(String name) {
+        RankedPlayer player = players.get(name);
+        if (player == null) {
+            player = promote(name);
+        }
+        return player;
     }
 
     /**
@@ -166,7 +160,7 @@ public class RankCore extends JavaPlugin {
      * Checks whether the specified player is qualified for a promotion, and promotes them if they are
      * @param name The name of the player
      */
-    public void promote(final String name) {
+    public RankedPlayer promote(final String name) {
         final Player promoted = getServer().getPlayer(name);
         RankedPlayer player = players.get(name);
         if (player == null) {
@@ -175,7 +169,7 @@ public class RankCore extends JavaPlugin {
             debug(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
             if (promoted == null) {
                 getLogger().warning("Something went wrong... a fetched player was null!");
-                return;
+                return null;
             }
             player = new RankedPlayer(this, name, rank, minutes, System.currentTimeMillis(), promoted.hasPermission("ranksuite.exempt"));
         }
@@ -197,6 +191,7 @@ public class RankCore extends JavaPlugin {
             player.setRank(next);
         }
         players.put(name, player);
+        return player;
     }
 
     public void retire(String name) {

@@ -38,7 +38,6 @@ public class RankedPlayer {
         this.minutes += ((time - this.login) / 1000 / 60);
         this.login = time;
         plugin.getDB().set(this.name, (int) this.minutes);
-        plugin.debug(this.name + "'s playtime has been incremented to " + this.minutes + " minute(s)!");
         if (!exempt && this.current.getNextRank() != null && !this.current.getNextRank().equals("none")) {
             Rank next = plugin.getRank(this.current.getNextRank());
             if (next == null) {
@@ -50,6 +49,11 @@ public class RankedPlayer {
             }
         }
         return false;
+    }
+
+    public void addTime(int mins) {
+        this.minutes += mins;
+        addTime();
     }
 
 }

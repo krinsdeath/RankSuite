@@ -5,7 +5,7 @@ version: maven-version-number
 commands:
   ranksuite:
     description: The base RankSuite command.
-    aliases: [rs]
+    aliases: [rank, rs]
     usage: |
       /<command>                        - Display this menu.
       /<command> check                  - Check your current rank.
