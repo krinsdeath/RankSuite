@@ -1,5 +1,6 @@
 package net.krinsoft.ranksuite.commands;
 
+import net.krinsoft.ranksuite.Leader;
 import net.krinsoft.ranksuite.RankCore;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -22,11 +23,13 @@ public class LeaderCommand extends BaseCommand {
 
     public void runCommand(CommandSender sender, List<String> args) {
         try {
-            int page = (args.size() == 0 ? 0 : Integer.parseInt(args.get(0)));
-            LinkedHashMap<String, Integer> map = plugin.getLeaders(page);
-            sender.sendMessage(ChatColor.GREEN + "===" + ChatColor.GOLD + " Rank Leaders [Page " + (page+1) + "] " + ChatColor.GREEN + "===");
-            for (Map.Entry<String, Integer> entry : map.entrySet()) {
-                sender.sendMessage(ChatColor.AQUA + entry.getKey() + ChatColor.GREEN + ": " + ChatColor.GOLD + entry.getValue());
+            int page = (args.size() == 0 ? 1 : Integer.parseInt(args.get(0)));
+            LinkedHashMap<Integer, Leader> map = plugin.getLeaders(page - 1);
+            sender.sendMessage(ChatColor.GREEN + "===" + ChatColor.GOLD + " Rank Leaders " + ChatColor.GREEN + "===");
+            for (Map.Entry<Integer, Leader> entry : map.entrySet()) {
+                sender.sendMessage(String.format("%1$-" + 4 + "s", (entry.getKey() + 1)) +
+                        ChatColor.GREEN + " | " + ChatColor.GOLD + String.format("%1$-" + 17 + "s", entry.getValue().getName()) +
+                        ChatColor.GREEN + " | " + ChatColor.AQUA + plugin.getRank(entry.getValue().getTimePlayed()).getName());
             }
         } catch (NumberFormatException e) {
             sender.sendMessage(ChatColor.RED + "The page must be a " + ChatColor.GREEN + "positive number" + ChatColor.RED + ".");

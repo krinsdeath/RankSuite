@@ -140,7 +140,7 @@ public class RankCore extends JavaPlugin {
         LinkedList<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(leaders.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
             public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                return o1.getValue().compareTo(o2.getValue());
+                return o2.getValue().compareTo(o1.getValue());
             }
         });
         this.leaders.clear();
@@ -155,7 +155,7 @@ public class RankCore extends JavaPlugin {
      * @param page The page to begin searching on
      * @return A map of the leaders matching the specified page
      */
-    public LinkedHashMap<String, Integer> getLeaders(int page) {
+    public LinkedHashMap<Integer, Leader> getLeaders(int page) {
         int search = page * 10 + 10;
         if (leaders.size() / 10 < page) {
             page = 0;
@@ -163,11 +163,11 @@ public class RankCore extends JavaPlugin {
         if (search > leaders.size()) {
             search = leaders.size();
         }
-        LinkedHashMap<String, Integer> map = new LinkedHashMap<String, Integer>();
+        LinkedHashMap<Integer, Leader> map = new LinkedHashMap<Integer, Leader>();
         String[] array = leaders.keySet().toArray(new String[leaders.size()]);
 
         for (int i = page * 10; i < search; i++) {
-            map.put(array[i], leaders.get(array[i]));
+            map.put(i, new Leader(array[i], leaders.get(array[i])));
         }
         return map;
     }
