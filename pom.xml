@@ -5,7 +5,7 @@
     <groupId>net.krinsoft</groupId>
     <artifactId>ranksuite</artifactId>
     <packaging>jar</packaging>
-    <version>1.0a</version>
+    <version>1.0-beta</version>
     <name>RankSuite</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

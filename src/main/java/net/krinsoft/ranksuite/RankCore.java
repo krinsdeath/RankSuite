@@ -4,7 +4,6 @@ import net.krinsoft.ranksuite.commands.CommandHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,9 +13,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 /**
@@ -29,6 +33,8 @@ public class RankCore extends JavaPlugin {
     private final static Pattern USER = Pattern.compile("\\[user\\]");
 
     private FileConfiguration db;
+
+    private LinkedHashMap<String, Integer> leaders = new LinkedHashMap<String, Integer>();
 
     private CommandHandler commands;
 
@@ -59,12 +65,24 @@ public class RankCore extends JavaPlugin {
         }
 
         // build a new rank database or import AutoRank's
-        File file = new File("plugins/AutoRank/");
+        File file = new File("plugins/AutoRank/data.yml");
         if (file.exists()) {
-            file.renameTo(new File(getDataFolder(), "players.db"));
+            getLogger().info("Using AutoRank's data.yml for current rankings...");
+            if (file.renameTo(new File(getDataFolder(), "players.db"))) {
+                getLogger().info("Rankings imported.");
+            }
         }
         getDB();
 
+        // create the leaderboard
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                buildLeaderboard();
+            }
+        }, 1L, 36000L);
+
+        // build the command handler
         commands = new CommandHandler(this);
 
         // register a scheduled task to update players dynamically
@@ -82,6 +100,7 @@ public class RankCore extends JavaPlugin {
     @Override
     public void onDisable() {
         saveDB();
+        getServer().getScheduler().cancelTasks(this);
     }
 
     @Override
@@ -110,6 +129,47 @@ public class RankCore extends JavaPlugin {
             String msg = "[Debug] " + message;
             getLogger().info(msg);
         }
+    }
+
+    private void buildLeaderboard() {
+        debug("Initializing leaderboards...");
+        Map<String, Integer> leaders = new LinkedHashMap<String, Integer>();
+        for (String key : getDB().getKeys(false)) {
+            leaders.put(key, getDB().getInt(key));
+        }
+        LinkedList<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(leaders.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o1.getValue().compareTo(o2.getValue());
+            }
+        });
+        this.leaders.clear();
+        for (Map.Entry<String, Integer> entry : list) {
+            this.leaders.put(entry.getKey(), entry.getValue());
+        }
+        debug("Leaderboards built.");
+    }
+
+    /**
+     * Inefficient and horrifying, don't use this ever.
+     * @param page The page to begin searching on
+     * @return A map of the leaders matching the specified page
+     */
+    public LinkedHashMap<String, Integer> getLeaders(int page) {
+        int search = page * 10 + 10;
+        if (leaders.size() / 10 < page) {
+            page = 0;
+        }
+        if (search > leaders.size()) {
+            search = leaders.size();
+        }
+        LinkedHashMap<String, Integer> map = new LinkedHashMap<String, Integer>();
+        String[] array = leaders.keySet().toArray(new String[leaders.size()]);
+
+        for (int i = page * 10; i < search; i++) {
+            map.put(array[i], leaders.get(array[i]));
+        }
+        return map;
     }
 
     public RankedPlayer getPlayer(String name) {

@@ -37,7 +37,9 @@ public class RankedPlayer {
         long time = System.currentTimeMillis();
         this.minutes += ((time - this.login) / 1000 / 60);
         this.login = time;
-        plugin.getDB().set(this.name, (int) this.minutes);
+        if (this.minutes > 0) {
+            plugin.getDB().set(this.name, (int) this.minutes);
+        }
         if (!exempt && this.current.getNextRank() != null && !this.current.getNextRank().equals("none")) {
             Rank next = plugin.getRank(this.current.getNextRank());
             if (next == null) {

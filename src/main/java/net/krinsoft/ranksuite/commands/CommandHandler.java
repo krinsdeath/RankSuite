@@ -23,7 +23,7 @@ public class CommandHandler {
         commands.put("check", new CheckCommand(plugin));
         commands.put("add", new AddCommand(plugin));
         //commands.put("reset", new ResetCommand(plugin));
-        //commands.put("leaders", new LeaderCommand(plugin));
+        commands.put("leaders", new LeaderCommand(plugin));
     }
 
     public void runCommand(CommandSender sender, String label, String[] args) {
