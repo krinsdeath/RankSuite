@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 /**
@@ -122,6 +121,37 @@ public class RankCore extends JavaPlugin {
         } catch (IOException e) {
             getLogger().warning("An error occurred while saving the players database.");
         }
+    }
+
+    public void reload() {
+        reloadConfig();
+        getServer().getScheduler().cancelTasks(this);
+
+        // build the ranks
+        for (String rank : getConfig().getConfigurationSection("ranks").getKeys(false)) {
+            ConfigurationSection section = getConfig().getConfigurationSection("ranks." + rank);
+            Rank rank1 = new Rank(rank, section.getString("next_rank"), section.getInt("time_played"), section.getString("message"));
+            ranks.put(rank, rank1);
+        }
+
+        // re-create the leaderboard
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                buildLeaderboard();
+            }
+        }, 1L, 36000L);
+
+        // re-register a scheduled task to update players dynamically
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                for (String name : players.keySet()) {
+                    promote(name);
+                }
+                saveDB();
+            }
+        }, 1L, 6000L);
     }
 
     public void debug(String message) {
