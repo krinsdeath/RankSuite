@@ -254,7 +254,7 @@ public class RankCore extends JavaPlugin {
         final Player promoted = getServer().getPlayer(name);
         RankedPlayer player = players.get(name);
         if (player == null) {
-            int minutes = getDB().getInt(name, 0);
+            int minutes = getDB().getInt(name.toLowerCase(), 0);
             Rank rank = getRank(minutes);
             debug(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
             if (promoted == null) {
