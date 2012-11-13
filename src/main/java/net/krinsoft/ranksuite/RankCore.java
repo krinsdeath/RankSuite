@@ -35,6 +35,11 @@ public class RankCore extends JavaPlugin {
     private FileConfiguration db;
 
     private LinkedHashMap<String, Integer> leaders = new LinkedHashMap<String, Integer>();
+    private LinkedList<String> logins = new LinkedList<String>();
+
+    private int leaderTask;
+    private int updateTask;
+    private int loginTask;
 
     private CommandHandler commands;
 
@@ -77,7 +82,7 @@ public class RankCore extends JavaPlugin {
         getDB();
 
         // create the leaderboard
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+        this.leaderTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
                 buildLeaderboard();
@@ -88,7 +93,7 @@ public class RankCore extends JavaPlugin {
         commands = new CommandHandler(this);
 
         // register a scheduled task to update players dynamically
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+        this.updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
                 for (String name : players.keySet()) {
@@ -97,6 +102,19 @@ public class RankCore extends JavaPlugin {
                 saveDB();
             }
         }, 1L, 6000L);
+
+        // login task to handle players quickly without slowing down the server
+        this.loginTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                if (logins.size() > 0) {
+                    for (String name : logins) {
+                        promote(name);
+                    }
+                    logins.clear();
+                }
+            }
+        }, 1L, 1L);
     }
 
     @Override
@@ -128,6 +146,9 @@ public class RankCore extends JavaPlugin {
 
     public void reload() {
         getServer().getScheduler().cancelTasks(this);
+        getServer().getScheduler().cancelTask(this.leaderTask);
+        getServer().getScheduler().cancelTask(this.updateTask);
+        getServer().getScheduler().cancelTask(this.loginTask);
 
         reloadConfig();
         this.debug = getConfig().getBoolean("plugin.debug", false);
@@ -142,7 +163,7 @@ public class RankCore extends JavaPlugin {
         }
 
         // re-create the leaderboard
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+        this.leaderTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
                 buildLeaderboard();
@@ -150,7 +171,7 @@ public class RankCore extends JavaPlugin {
         }, 1L, 36000L);
 
         // re-register a scheduled task to update players dynamically
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+        this.updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
                 for (String name : players.keySet()) {
@@ -159,6 +180,19 @@ public class RankCore extends JavaPlugin {
                 saveDB();
             }
         }, 1L, 6000L);
+
+        // login task to handle players quickly without slowing down the server
+        this.loginTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                if (logins.size() > 0) {
+                    for (String name : logins) {
+                        promote(name);
+                    }
+                    logins.clear();
+                }
+            }
+        }, 1L, 1L);
     }
 
     public void rank(String message) {
@@ -252,12 +286,7 @@ public class RankCore extends JavaPlugin {
     }
 
     public void login(final String name) {
-        getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-            @Override
-            public void run() {
-                promote(name);
-            }
-        }, 100L);
+        logins.add(name);
     }
 
     /**
@@ -270,7 +299,7 @@ public class RankCore extends JavaPlugin {
         if (player == null) {
             int minutes = getDB().getInt(name.toLowerCase(), 0);
             Rank rank = getRank(minutes);
-            rank(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
+            debug(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
             if (promoted == null) {
                 getLogger().warning("Something went wrong... a fetched player was null!");
                 return null;
@@ -282,7 +311,7 @@ public class RankCore extends JavaPlugin {
             // player is qualified for a promotion
             Rank last = player.getRank();
             Rank next = getRank(player.getRank().getNextRank());
-            debug(promoted.getName() + " has advanced from " + last.getName() + " to " + next.getName() + "!");
+            rank(promoted.getName() + " has advanced from " + last.getName() + " to " + next.getName() + "!");
             for (String cmd : this.promotion) {
                 cmd = LAST.matcher(cmd).replaceAll(last.getName());
                 cmd = NEXT.matcher(cmd).replaceAll(next.getName());
