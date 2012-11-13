@@ -2,6 +2,7 @@ package net.krinsoft.ranksuite;
 
 import net.krinsoft.ranksuite.commands.CommandHandler;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -251,7 +252,7 @@ public class RankCore extends JavaPlugin {
      * @param name The name of the player
      */
     public RankedPlayer promote(final String name) {
-        final Player promoted = getServer().getPlayer(name);
+        final OfflinePlayer promoted = getServer().getOfflinePlayer(name);
         RankedPlayer player = players.get(name);
         if (player == null) {
             int minutes = getDB().getInt(name.toLowerCase(), 0);
@@ -261,7 +262,8 @@ public class RankCore extends JavaPlugin {
                 getLogger().warning("Something went wrong... a fetched player was null!");
                 return null;
             }
-            player = new RankedPlayer(this, name, rank, minutes, System.currentTimeMillis(), promoted.hasPermission("ranksuite.exempt"));
+            boolean exempt = !promoted.isOnline() || promoted.getPlayer().hasPermission("ranksuite.exempt");
+            player = new RankedPlayer(this, name, rank, minutes, System.currentTimeMillis(), exempt);
         }
         if (player.addTime()) {
             // player is qualified for a promotion
@@ -275,7 +277,7 @@ public class RankCore extends JavaPlugin {
             }
             if (next.getPromotionMessage() != null) {
                 for (String msg : next.getPromotionMessage().split("\n")) {
-                    promoted.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+                    promoted.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
                 }
             }
             player.setRank(next);
@@ -286,12 +288,14 @@ public class RankCore extends JavaPlugin {
 
     public void retire(String name) {
         RankedPlayer player = players.remove(name);
-        player.addTime();
+        if (player != null) {
+            player.addTime();
+        }
     }
 
-    public void checkRank(CommandSender sender, Player player) {
+    public void checkRank(CommandSender sender, OfflinePlayer player) {
         if (sender.equals(player) || sender.hasPermission("ranksuite.check.other") || !(sender instanceof Player)) {
-            RankedPlayer p = players.get(player.getName());
+            RankedPlayer p = promote(player.getName());
             if (p == null) {
                 sender.sendMessage(ChatColor.RED + "Something went wrong.");
                 return;

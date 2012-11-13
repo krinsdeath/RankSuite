@@ -2,6 +2,7 @@ package net.krinsoft.ranksuite.commands;
 
 import net.krinsoft.ranksuite.RankCore;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -25,7 +26,7 @@ public class CheckCommand extends BaseCommand {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
             return;
         }
-        Player target;
+        OfflinePlayer target;
         if (args.size() == 0) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(ChatColor.RED + "You must supply a " + ChatColor.GREEN + "player target" + ChatColor.RED + " to use this command from the console.");
@@ -37,7 +38,7 @@ public class CheckCommand extends BaseCommand {
                 sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
                 return;
             }
-            target = plugin.getServer().getPlayer(args.get(0));
+            target = plugin.getServer().getOfflinePlayer(args.get(0));
             if (target == null) {
                 sender.sendMessage(ChatColor.RED + "No player found with the name '" + ChatColor.GREEN + args.get(0) + ChatColor.RED + "'!");
                 return;
