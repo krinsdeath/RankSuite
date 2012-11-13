@@ -42,6 +42,7 @@ public class RankCore extends JavaPlugin {
     private Map<String, RankedPlayer> players = new HashMap<String, RankedPlayer>();
 
     private boolean debug = false;
+    private boolean log_ranks = true;
     private List<String> promotion = new ArrayList<String>();
 
     @Override
@@ -55,6 +56,7 @@ public class RankCore extends JavaPlugin {
             saveDefaultConfig();
         }
         this.debug = getConfig().getBoolean("plugin.debug", false);
+        this.log_ranks = getConfig().getBoolean("plugin.log_rankups", true);
         this.promotion = getConfig().getStringList("promote");
 
         // build the ranks
@@ -125,8 +127,12 @@ public class RankCore extends JavaPlugin {
     }
 
     public void reload() {
-        reloadConfig();
         getServer().getScheduler().cancelTasks(this);
+
+        reloadConfig();
+        this.debug = getConfig().getBoolean("plugin.debug", false);
+        this.log_ranks = getConfig().getBoolean("plugin.log_rankups", true);
+        this.promotion = getConfig().getStringList("promote");
 
         // build the ranks
         for (String rank : getConfig().getConfigurationSection("ranks").getKeys(false)) {
@@ -153,6 +159,13 @@ public class RankCore extends JavaPlugin {
                 saveDB();
             }
         }, 1L, 6000L);
+    }
+
+    public void rank(String message) {
+        if (log_ranks) {
+            message = "[Rank Up!] " + message;
+            getLogger().info(message);
+        }
     }
 
     public void debug(String message) {
@@ -257,7 +270,7 @@ public class RankCore extends JavaPlugin {
         if (player == null) {
             int minutes = getDB().getInt(name.toLowerCase(), 0);
             Rank rank = getRank(minutes);
-            debug(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
+            rank(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
             if (promoted == null) {
                 getLogger().warning("Something went wrong... a fetched player was null!");
                 return null;
@@ -269,6 +282,7 @@ public class RankCore extends JavaPlugin {
             // player is qualified for a promotion
             Rank last = player.getRank();
             Rank next = getRank(player.getRank().getNextRank());
+            debug(promoted.getName() + " has advanced from " + last.getName() + " to " + next.getName() + "!");
             for (String cmd : this.promotion) {
                 cmd = LAST.matcher(cmd).replaceAll(last.getName());
                 cmd = NEXT.matcher(cmd).replaceAll(next.getName());
