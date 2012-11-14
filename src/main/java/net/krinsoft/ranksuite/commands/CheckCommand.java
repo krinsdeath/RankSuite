@@ -23,7 +23,7 @@ public class CheckCommand extends BaseCommand {
 
     public void runCommand(CommandSender sender, List<String> args) {
         if (!checkPermission(sender)) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
+            noPermission(sender);
             return;
         }
         OfflinePlayer target;

@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -121,6 +122,9 @@ public class RankCore extends JavaPlugin {
     public void onDisable() {
         saveDB();
         getServer().getScheduler().cancelTasks(this);
+        getServer().getScheduler().cancelTask(this.leaderTask);
+        getServer().getScheduler().cancelTask(this.updateTask);
+        getServer().getScheduler().cancelTask(this.loginTask);
     }
 
     @Override
@@ -283,6 +287,10 @@ public class RankCore extends JavaPlugin {
             }
         }
         return match;
+    }
+
+    public Set<Rank> getRanks() {
+        return (Set<Rank>) ranks.values();
     }
 
     public void login(final String name) {

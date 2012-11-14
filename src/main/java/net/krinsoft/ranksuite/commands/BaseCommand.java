@@ -65,4 +65,8 @@ public abstract class BaseCommand implements Command {
     public int getRequiredArgs() {
         return this.required;
     }
+
+    protected void noPermission(CommandSender sender) {
+        sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
+    }
 }

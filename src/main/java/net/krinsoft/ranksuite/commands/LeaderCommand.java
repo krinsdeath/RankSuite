@@ -22,6 +22,10 @@ public class LeaderCommand extends BaseCommand {
     }
 
     public void runCommand(CommandSender sender, List<String> args) {
+        if (!checkPermission(sender)) {
+            noPermission(sender);
+            return;
+        }
         try {
             int page = (args.size() == 0 ? 1 : Integer.parseInt(args.get(0)));
             LinkedHashMap<Integer, Leader> map = plugin.getLeaders(page - 1);

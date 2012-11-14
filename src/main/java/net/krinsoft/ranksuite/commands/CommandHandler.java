@@ -25,6 +25,7 @@ public class CommandHandler {
         //commands.put("reset", new ResetCommand(plugin));
         commands.put("leaders", new LeaderCommand(plugin));
         commands.put("reload", new ReloadCommand(plugin));
+        commands.put("validate", new ValidateCommand(plugin));
     }
 
     public void runCommand(CommandSender sender, String label, String[] args) {

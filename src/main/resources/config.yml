@@ -1,3 +1,7 @@
+plugin:
+  debug: false
+  log_rankups: true
+
 promote:
 - pgs [user] [new]
 

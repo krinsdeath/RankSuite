@@ -21,8 +21,10 @@ permissions:
       ranksuite.check.other: true
       ranksuite.add: true
       ranksuite.add.other: true
+      ranksuite.leaders: true
       ranksuite.reset: true
       ranksuite.reload: true
+      ranksuite.validate: true
       ranksuite.exempt: true
   ranksuite.check:
     description: Allows a user to check their own play stats.
@@ -32,9 +34,13 @@ permissions:
     description: Allows a user to add play time to their own stats.
   ranksuite.add.other:
     description: Allows a user to add play time to another's stats.
+  ranksuite.leaders:
+    description: Allows a user to display the leaderboards.
   ranksuite.reset:
     description: Allows a user to reset a user's play stats.
   ranksuite.reload:
     description: Allows a user to reload RankSuite's configuration file.
+  ranksuite.validate:
+    description: Attempts to validate the current rank for all known users.
   ranksuite.exempt:
     description: Exempts the user from the auto-ranking feature.

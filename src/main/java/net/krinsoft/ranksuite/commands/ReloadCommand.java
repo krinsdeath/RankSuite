@@ -20,6 +20,10 @@ public class ReloadCommand extends BaseCommand {
 
     @Override
     public void runCommand(CommandSender sender, List<String> args) {
+        if (!checkPermission(sender)) {
+            noPermission(sender);
+            return;
+        }
         plugin.reload();
         sender.sendMessage(ChatColor.GREEN + "RankSuite's configuration file has been reloaded.");
     }
