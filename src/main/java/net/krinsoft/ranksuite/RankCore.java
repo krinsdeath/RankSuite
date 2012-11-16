@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -290,7 +291,7 @@ public class RankCore extends JavaPlugin {
     }
 
     public Set<Rank> getRanks() {
-        return (Set<Rank>) ranks.values();
+        return new HashSet<Rank>(ranks.values());
     }
 
     public void login(final String name) {

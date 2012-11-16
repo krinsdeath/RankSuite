@@ -9,6 +9,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author krinsdeath
@@ -24,20 +25,20 @@ public class ValidateCommand extends BaseCommand {
         setPermission("ranksuite.validate");
         Plugin plg = this.plugin.getServer().getPluginManager().getPlugin("bPermissions");
         if (plg != null) {
-            this.rm = "exec u:%1$ a:rmgroup v:%2$";
-            this.add = "exec u:%1$ a:addgroup v:%2$";
+            this.rm = "exec u:%1$s a:rmgroup v:%2$s";
+            this.add = "exec u:%1$s a:addgroup v:%2$s";
             return;
         }
         plg = this.plugin.getServer().getPluginManager().getPlugin("PermissionsEx");
         if (plg != null) {
-            this.rm = "pex user %1$ group remove %2$";
-            this.add = "pex user %1$ group add %2$";
+            this.rm = "pex user %1$s group remove %2$s";
+            this.add = "pex user %1$s group add %2$s";
             return;
         }
         plg = this.plugin.getServer().getPluginManager().getPlugin("PermissionsBukkit");
         if (plg != null) {
-            this.rm = "permissions player removegroup %1$ %2$";
-            this.add = "permissions player addgroup %1$ %2$";
+            this.rm = "permissions player removegroup %1$s %2$s";
+            this.add = "permissions player addgroup %1$s %2$s";
             return;
         }
         this.rm = "";
@@ -53,11 +54,17 @@ public class ValidateCommand extends BaseCommand {
         if (rm.length() > 0 && add.length() > 0) {
             long time = System.nanoTime();
             try {
+                Set<Rank> ranks = this.plugin.getRanks();
                 ConsoleCommandSender console = this.plugin.getServer().getConsoleSender();
                 for (String p : this.plugin.getDB().getKeys(false)) {
+                    if (this.plugin.getDB().getInt(p) == 0) {
+                        this.plugin.getDB().set(p, null);
+                        this.plugin.debug("Removing '" + p + "' from rankings.");
+                        continue;
+                    }
                     OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(p);
                     if (player == null) { continue; }
-                    for (Rank rank : this.plugin.getRanks()) {
+                    for (Rank rank : ranks) {
                         this.plugin.getServer().dispatchCommand(console, String.format(rm, player.getName(), rank.getName()));
                     }
                     this.plugin.getServer().dispatchCommand(console, String.format(add, player.getName(), this.plugin.getRank(this.plugin.getDB().getInt(p)).getName()));
@@ -67,6 +74,7 @@ public class ValidateCommand extends BaseCommand {
                 e.printStackTrace();
                 return;
             }
+            this.plugin.saveDB();
             sender.sendMessage(String.format(ChatColor.GREEN + "[RankSuite] All users validated in %1$dms.", (System.nanoTime() - time) / 1000000));
             return;
         }
