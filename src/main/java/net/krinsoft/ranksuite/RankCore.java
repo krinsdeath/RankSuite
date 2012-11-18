@@ -50,7 +50,7 @@ public class RankCore extends JavaPlugin {
 
     private boolean debug = false;
     private boolean log_ranks = true;
-    private List<String> promotion = new ArrayList<String>();
+    private final List<String> promotion = new ArrayList<String>();
 
     @Override
     public void onEnable() {
@@ -64,7 +64,8 @@ public class RankCore extends JavaPlugin {
         }
         this.debug = getConfig().getBoolean("plugin.debug", false);
         this.log_ranks = getConfig().getBoolean("plugin.log_rankups", true);
-        this.promotion = getConfig().getStringList("promote");
+        this.promotion.clear();
+        this.promotion.addAll(getConfig().getStringList("promote"));
 
         // build the ranks
         for (String rank : getConfig().getConfigurationSection("ranks").getKeys(false)) {
