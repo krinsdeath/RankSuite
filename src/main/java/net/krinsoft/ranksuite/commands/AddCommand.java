@@ -1,7 +1,7 @@
 package net.krinsoft.ranksuite.commands;
 
 import net.krinsoft.ranksuite.RankCore;
-import net.krinsoft.ranksuite.RankedPlayer;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +21,8 @@ public class AddCommand extends BaseCommand {
         setPermission("ranksuite.add");
     }
 
-    public void runCommand(CommandSender sender, List<String> args) {
+    @Override
+	public void runCommand(CommandSender sender, List<String> args) {
         if (!checkPermission(sender)) {
             noPermission(sender);
             return;

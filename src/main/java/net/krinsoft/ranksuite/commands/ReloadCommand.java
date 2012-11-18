@@ -1,6 +1,8 @@
 package net.krinsoft.ranksuite.commands;
 
+
 import net.krinsoft.ranksuite.RankCore;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

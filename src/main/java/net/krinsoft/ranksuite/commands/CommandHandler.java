@@ -1,6 +1,8 @@
 package net.krinsoft.ranksuite.commands;
 
+
 import net.krinsoft.ranksuite.RankCore;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -15,11 +17,9 @@ import java.util.Map;
  */
 public class CommandHandler {
 
-    private RankCore plugin;
     private Map<String, Command> commands = new HashMap<String, Command>();
 
     public CommandHandler(RankCore plugin) {
-        this.plugin = plugin;
         commands.put("check", new CheckCommand(plugin));
         commands.put("add", new AddCommand(plugin));
         //commands.put("reset", new ResetCommand(plugin));

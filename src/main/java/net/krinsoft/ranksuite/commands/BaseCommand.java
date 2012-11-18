@@ -1,6 +1,8 @@
 package net.krinsoft.ranksuite.commands;
 
+
 import net.krinsoft.ranksuite.RankCore;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -52,17 +54,20 @@ public abstract class BaseCommand implements Command {
         this.usages.add(usage.toString());
     }
 
-    public boolean checkPermission(CommandSender sender) {
+    @Override
+	public boolean checkPermission(CommandSender sender) {
         return sender.hasPermission(this.permission);
     }
 
-    public void showHelp(CommandSender sender, String label) {
+    @Override
+	public void showHelp(CommandSender sender, String label) {
         for (String usage : usages) {
             sender.sendMessage(ChatColor.GRAY + String.format("%1$-" + 10 + "s", label) + usage);
         }
     }
 
-    public int getRequiredArgs() {
+    @Override
+	public int getRequiredArgs() {
         return this.required;
     }
 

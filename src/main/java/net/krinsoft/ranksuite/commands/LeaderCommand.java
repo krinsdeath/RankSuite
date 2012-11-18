@@ -2,6 +2,7 @@ package net.krinsoft.ranksuite.commands;
 
 import net.krinsoft.ranksuite.Leader;
 import net.krinsoft.ranksuite.RankCore;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -21,7 +22,8 @@ public class LeaderCommand extends BaseCommand {
         setPermission("ranksuite.leaders");
     }
 
-    public void runCommand(CommandSender sender, List<String> args) {
+    @Override
+	public void runCommand(CommandSender sender, List<String> args) {
         if (!checkPermission(sender)) {
             noPermission(sender);
             return;
