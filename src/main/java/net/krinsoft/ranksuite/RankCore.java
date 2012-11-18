@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -367,7 +368,9 @@ public class RankCore extends JavaPlugin {
             }
             player.setRank(next);
         }
-        players.put(name, player);
+        if (promoted.isOnline()) {
+            players.put(name, player);
+        }
         return player;
     }
 
@@ -407,6 +410,9 @@ public class RankCore extends JavaPlugin {
                 }
             }
         }
+        if (!player.isOnline()) {
+            players.remove(player.getName());
+        }
     }
 
     /**
@@ -416,7 +422,7 @@ public class RankCore extends JavaPlugin {
      */
     public String toFancyTime(int minutes) {
         if (minutes <= 0) {
-            return "0";
+            return "0 minutes";
         }
         StringBuilder time = new StringBuilder();
         int days = minutes / 60 / 24;
@@ -425,13 +431,45 @@ public class RankCore extends JavaPlugin {
         }
         int hours = minutes / 60 % 24;
         if (hours > 0) {
-            time.append(", ").append(hours).append(" hour").append(hours > 1 ? "s" : "");
+            if (days > 0) {
+                time.append(", ");
+            }
+            time.append(hours).append(" hour").append(hours > 1 ? "s" : "");
         }
         minutes = minutes % 60;
         if (minutes > 0) {
-            time.append(", ").append(minutes).append(" minute").append(minutes > 1 ? "s": "");
+            if (hours > 0) {
+                time.append(", ");
+            }
+            time.append(minutes).append(" minute").append(minutes > 1 ? "s": "");
         }
         return time.toString();
+    }
+
+    public void reset(String name, String rank) {
+        Rank base = getRank(0);
+        Plugin plg = this.getServer().getPluginManager().getPlugin("bPermissions");
+        if (plg != null) {
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("exec u:%s a:rmgroup v:%s", name, rank));
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("exec u:%s a:addgroup v:%s", name, base.getName()));
+            return;
+        }
+        plg = this.getServer().getPluginManager().getPlugin("PermissionsEx");
+        if (plg != null) {
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pex user %s removegroup %s", name, rank));
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pex user %s addgroup %s", name, base.getName()));
+            return;
+        }
+        plg = this.getServer().getPluginManager().getPlugin("PermissionsBukkit");
+        if (plg != null) {
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("permissions player removegroup %s %s", name, rank));
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("permissions player addgroup %s %s", name, base.getName()));
+            return;
+        }
+        plg = this.getServer().getPluginManager().getPlugin("Privileges");
+        if (plg != null) {
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pgs %s %s", name, base.getName()));
+        }
     }
 
 }
