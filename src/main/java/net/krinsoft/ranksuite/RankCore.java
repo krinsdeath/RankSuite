@@ -399,14 +399,39 @@ public class RankCore extends JavaPlugin {
             }
             String name = (sender.equals(player) ? "You" : player.getName());
             sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " are" : " is") + " in the rank: " + ChatColor.AQUA + p.getRank().getName());
-            sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " have" : " has") + " played for " + ChatColor.AQUA + p.getTimePlayed() + " minute(s)" + ChatColor.GREEN + ".");
+            sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " have" : " has") + " played for " + ChatColor.AQUA + toFancyTime(p.getTimePlayed()) + ChatColor.GREEN + ".");
             if (p.getRank().getNextRank() != null) {
                 Rank next = getRank(p.getRank().getNextRank());
                 if (next != null) {
-                    sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + " will rank up to " + ChatColor.AQUA + next.getName() + ChatColor.GREEN + " in " + ChatColor.AQUA + (next.getMinutesRequired() - p.getTimePlayed()) + " minute(s)" + ChatColor.GREEN + ".");
+                    sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + " will rank up to " + ChatColor.AQUA + next.getName() + ChatColor.GREEN + " in " + ChatColor.AQUA + toFancyTime(next.getMinutesRequired() - p.getTimePlayed()) + ChatColor.GREEN + ".");
                 }
             }
         }
+    }
+
+    /**
+     * Creates a fancy formatted time string from the specified input minutes
+     * @param minutes The amount of minutes to format into a fancy time string
+     * @return The formatted fancy time string
+     */
+    public String toFancyTime(int minutes) {
+        if (minutes <= 0) {
+            return "0";
+        }
+        StringBuilder time = new StringBuilder();
+        int days = minutes / 60 / 24;
+        if (days > 0) {
+            time.append(days).append(" day").append(days > 1 ? "s" : "");
+        }
+        int hours = minutes / 60 % 24;
+        if (hours > 0) {
+            time.append(", ").append(hours).append(" hour").append(hours > 1 ? "s" : "");
+        }
+        minutes = minutes % 60;
+        if (minutes > 0) {
+            time.append(", ").append(minutes).append(" minute").append(minutes > 1 ? "s": "");
+        }
+        return time.toString();
     }
 
 }
