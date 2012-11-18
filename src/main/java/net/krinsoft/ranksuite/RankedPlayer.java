@@ -65,6 +65,11 @@ public class RankedPlayer {
             this.plugin.getDB().set(this.name.toLowerCase(), null);
             return;
         }
+        Rank down = this.plugin.getRank((int) this.minutes);
+        if (!down.getName().equals(this.current.getName())) {
+            plugin.reset(this.name, this.current.getName(), down.getName());
+            this.current = down;
+        }
         addTime();
     }
 

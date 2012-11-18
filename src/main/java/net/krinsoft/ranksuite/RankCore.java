@@ -448,27 +448,31 @@ public class RankCore extends JavaPlugin {
 
     public void reset(String name, String rank) {
         Rank base = getRank(0);
+        reset(name, rank, base.getName());
+    }
+
+    public void reset(String name, String rank, String base) {
         Plugin plg = this.getServer().getPluginManager().getPlugin("bPermissions");
         if (plg != null) {
             getServer().dispatchCommand(getServer().getConsoleSender(), String.format("exec u:%s a:rmgroup v:%s", name, rank));
-            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("exec u:%s a:addgroup v:%s", name, base.getName()));
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("exec u:%s a:addgroup v:%s", name, base));
             return;
         }
         plg = this.getServer().getPluginManager().getPlugin("PermissionsEx");
         if (plg != null) {
             getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pex user %s removegroup %s", name, rank));
-            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pex user %s addgroup %s", name, base.getName()));
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pex user %s addgroup %s", name, base));
             return;
         }
         plg = this.getServer().getPluginManager().getPlugin("PermissionsBukkit");
         if (plg != null) {
             getServer().dispatchCommand(getServer().getConsoleSender(), String.format("permissions player removegroup %s %s", name, rank));
-            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("permissions player addgroup %s %s", name, base.getName()));
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("permissions player addgroup %s %s", name, base));
             return;
         }
         plg = this.getServer().getPluginManager().getPlugin("Privileges");
         if (plg != null) {
-            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pgs %s %s", name, base.getName()));
+            getServer().dispatchCommand(getServer().getConsoleSender(), String.format("pgs %s %s", name, base));
         }
     }
 
