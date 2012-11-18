@@ -446,11 +446,31 @@ public class RankCore extends JavaPlugin {
         return time.toString();
     }
 
+    /**
+     * Resets the specified player to the default rank.
+     * @param name The name of the player being reset.
+     */
+    public void reset(String name) {
+        RankedPlayer p = getPlayer(name);
+        reset(name, p.getRank().getName());
+    }
+
+    /**
+     * Uses the specified player name and rank name to reset a player to the default rank
+     * @param name The name of the player
+     * @param rank The rank being removed from the player
+     */
     public void reset(String name, String rank) {
         Rank base = getRank(0);
         reset(name, rank, base.getName());
     }
 
+    /**
+     * Resets the specified player to the specified base rank and removes the 'rank' from the player.
+     * @param name The name of the player
+     * @param rank The rank being removed from the player
+     * @param base The player's new rank
+     */
     public void reset(String name, String rank, String base) {
         Plugin plg = this.getServer().getPluginManager().getPlugin("bPermissions");
         if (plg != null) {
