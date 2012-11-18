@@ -334,15 +334,15 @@ public class RankCore extends JavaPlugin {
      */
     public RankedPlayer promote(final String name) {
         final OfflinePlayer promoted = getServer().getOfflinePlayer(name);
+        if (promoted == null) {
+            getLogger().warning("Something went wrong... a fetched player was null!");
+            return null;
+        }
         RankedPlayer player = players.get(name);
         if (player == null) {
             int minutes = getDB().getInt(name.toLowerCase(), 0);
             Rank rank = getRank(minutes);
             debug(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
-            if (promoted == null) {
-                getLogger().warning("Something went wrong... a fetched player was null!");
-                return null;
-            }
             boolean exempt = !promoted.isOnline() || promoted.getPlayer().hasPermission("ranksuite.exempt");
             player = new RankedPlayer(this, name, rank, minutes, System.currentTimeMillis(), exempt);
         }
@@ -358,8 +358,11 @@ public class RankCore extends JavaPlugin {
                 getServer().dispatchCommand(getServer().getConsoleSender(), cmd);
             }
             if (next.getPromotionMessage() != null) {
-                for (String msg : next.getPromotionMessage().split("\n")) {
-                    promoted.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+                Player p = promoted.getPlayer();
+                if (p != null) {
+                    for (String msg : next.getPromotionMessage().split("\n")) {
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+                    }
                 }
             }
             player.setRank(next);
