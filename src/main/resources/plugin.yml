@@ -20,7 +20,7 @@ permissions:
       ranksuite.check: true
       ranksuite.check.other: true
       ranksuite.add: true
-      ranksuite.add.other: true
+      ranksuite.remove: true
       ranksuite.leaders: true
       ranksuite.reset: true
       ranksuite.reload: true
@@ -31,9 +31,9 @@ permissions:
   ranksuite.check.other:
     description: Allows a user to check another's play stats.
   ranksuite.add:
-    description: Allows a user to add play time to their own stats.
-  ranksuite.add.other:
-    description: Allows a user to add play time to another's stats.
+    description: Allows a user to add play time to another user.
+  ranksuite.remove:
+    description: Allows a user to remove play time from another user.
   ranksuite.leaders:
     description: Allows a user to display the leaderboards.
   ranksuite.reset:

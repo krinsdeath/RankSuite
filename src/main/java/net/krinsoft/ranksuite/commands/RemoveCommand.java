@@ -16,6 +16,7 @@ public class RemoveCommand extends BaseCommand {
     public RemoveCommand(RankCore plugin) {
         super(plugin);
         setName("remove");
+        addUsage("[user]", "[mins]", "Removes playtime from the specified user.");
         setRequiredArgs(2);
         setPermission("ranksuite.remove");
     }

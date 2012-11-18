@@ -67,6 +67,7 @@ public class RankedPlayer {
     public void reset() {
         this.minutes = 0;
         this.login = System.currentTimeMillis();
+        this.current = plugin.getRank(0);
         addTime();
     }
 
