@@ -58,4 +58,16 @@ public class RankedPlayer {
         addTime();
     }
 
+    public void removeTime(int mins) {
+        this.minutes -= mins;
+        if (this.minutes < 0) { this.minutes = 0; }
+        addTime();
+    }
+
+    public void reset() {
+        this.minutes = 0;
+        this.login = System.currentTimeMillis();
+        addTime();
+    }
+
 }

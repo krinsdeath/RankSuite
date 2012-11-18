@@ -22,6 +22,7 @@ public class CommandHandler {
         this.plugin = plugin;
         commands.put("check", new CheckCommand(plugin));
         commands.put("add", new AddCommand(plugin));
+        commands.put("remove", new RemoveCommand(plugin));
         //commands.put("reset", new ResetCommand(plugin));
         commands.put("leaders", new LeaderCommand(plugin));
         commands.put("reload", new ReloadCommand(plugin));
