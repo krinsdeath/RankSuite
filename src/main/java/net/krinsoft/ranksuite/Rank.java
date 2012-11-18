@@ -5,10 +5,10 @@ package net.krinsoft.ranksuite;
  */
 public class Rank {
 
-    private String name;
-    private String next;
-    private int minutes;
-    private String message;
+    private final String name;
+    private final String next;
+    private final int minutes;
+    private final String message;
 
     public Rank(String n, String to, int min, String msg) {
         this.name = n;
