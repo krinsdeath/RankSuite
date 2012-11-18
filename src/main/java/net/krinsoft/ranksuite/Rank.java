@@ -14,7 +14,7 @@ public class Rank {
         this.name = n;
         this.next = to;
         this.minutes = min;
-        this.message = msg;
+        this.message = msg.replace("%r", this.name);
     }
 
     public String getName() {
