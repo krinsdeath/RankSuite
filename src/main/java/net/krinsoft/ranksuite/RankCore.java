@@ -239,7 +239,8 @@ public class RankCore extends JavaPlugin {
         }
         LinkedList<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(leaders.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+            @Override
+			public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
                 return o2.getValue().compareTo(o1.getValue());
             }
         });
@@ -399,14 +400,24 @@ public class RankCore extends JavaPlugin {
             }
             String name = (sender.equals(player) ? "You" : player.getName());
             sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " are" : " is") + " in the rank: " + ChatColor.AQUA + p.getRank().getName());
-            sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " have" : " has") + " played for " + ChatColor.AQUA + p.getTimePlayed() + " minute(s)" + ChatColor.GREEN + ".");
+            sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " have" : " has") + " played for " + ChatColor.AQUA + format(p.getTimePlayed()) + " minute(s)" + ChatColor.GREEN + ".");
             if (p.getRank().getNextRank() != null) {
                 Rank next = getRank(p.getRank().getNextRank());
                 if (next != null) {
-                    sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + " will rank up to " + ChatColor.AQUA + next.getName() + ChatColor.GREEN + " in " + ChatColor.AQUA + (next.getMinutesRequired() - p.getTimePlayed()) + " minute(s)" + ChatColor.GREEN + ".");
+                    sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + " will rank up to " + ChatColor.AQUA + next.getName() + ChatColor.GREEN + " in " + ChatColor.AQUA + (format(next.getMinutesRequired() - p.getTimePlayed())) + " minute(s)" + ChatColor.GREEN + ".");
                 }
             }
         }
     }
 
+    public String format(int time) {
+		if (time < 0) {
+			return time + " minutes";
+		}
+		final int days = time/24/60;
+		final int hours = time/60%24;
+		final int minutes = time%60;
+		return "" + days + ChatColor.GREEN + " days, " + ChatColor.AQUA + hours
+				+ ChatColor.GREEN + " hours, and " + ChatColor.AQUA + minutes + " minutes";
+	}
 }
