@@ -149,6 +149,9 @@ public class RankCore extends JavaPlugin {
         }
     }
 
+    /**
+     * Attempts to reload the plugin's configuration file and restart the plugin tasks
+     */
     public void reload() {
         getServer().getScheduler().cancelTasks(this);
         getServer().getScheduler().cancelTask(this.leaderTask);
@@ -158,8 +161,10 @@ public class RankCore extends JavaPlugin {
         reloadConfig();
         this.debug = getConfig().getBoolean("plugin.debug", false);
         this.log_ranks = getConfig().getBoolean("plugin.log_rankups", true);
-        this.promotion = getConfig().getStringList("promote");
+        this.promotion.clear();
+        this.promotion.addAll(getConfig().getStringList("promote"));
 
+        ranks.clear();
         // build the ranks
         for (String rank : getConfig().getConfigurationSection("ranks").getKeys(false)) {
             ConfigurationSection section = getConfig().getConfigurationSection("ranks." + rank);
@@ -200,6 +205,10 @@ public class RankCore extends JavaPlugin {
         }, 1L, 1L);
     }
 
+    /**
+     * Writes out a rank up message
+     * @param message The message being written
+     */
     public void rank(String message) {
         if (log_ranks) {
             message = "[Rank Up!] " + message;
@@ -207,6 +216,10 @@ public class RankCore extends JavaPlugin {
         }
     }
 
+    /**
+     * Writes out a debug message
+     * @param message The message being written
+     */
     public void debug(String message) {
         if (debug) {
             String msg = "[Debug] " + message;
@@ -214,6 +227,9 @@ public class RankCore extends JavaPlugin {
         }
     }
 
+    /**
+     * Populates the Leaderboard hashmap to maintain efficiency
+     */
     private void buildLeaderboard() {
         debug("Initializing leaderboards...");
         Map<String, Integer> leaders = new LinkedHashMap<String, Integer>();
@@ -255,6 +271,11 @@ public class RankCore extends JavaPlugin {
         return map;
     }
 
+    /**
+     * Fetches a RankedPlayer object for the specified player by their name
+     * @param name The name of the player we're fetching
+     * @return A RankedPlayer object representing the specified player
+     */
     public RankedPlayer getPlayer(String name) {
         RankedPlayer player = players.get(name);
         if (player == null) {
@@ -290,10 +311,18 @@ public class RankCore extends JavaPlugin {
         return match;
     }
 
+    /**
+     * Gets a set containing all currently registered ranks
+     * @return The set of ranks
+     */
     public Set<Rank> getRanks() {
         return new HashSet<Rank>(ranks.values());
     }
 
+    /**
+     * Adds the specified player name to the login queue
+     * @param name The name of the player who has just logged in
+     */
     public void login(final String name) {
         logins.add(name);
     }
@@ -338,13 +367,21 @@ public class RankCore extends JavaPlugin {
         return player;
     }
 
+    /**
+     * Checks for a promotion for the specified player and then destroys their currently loaded object
+     * @param name The name of the player who is retiring
+     */
     public void retire(String name) {
-        RankedPlayer player = players.remove(name);
-        if (player != null) {
-            player.addTime();
-        }
+        promote(name);
+        RankedPlayer p = players.remove(name);
+        debug(name + " has retired as a '" + p.getRank().getName() + "'");
     }
 
+    /**
+     * Tests whether the sender is allowed to check the player's rank, and then displays information about the specified player.
+     * @param sender The sender who issued the command
+     * @param player The player whose rank is being checked
+     */
     public void checkRank(CommandSender sender, OfflinePlayer player) {
         if (sender.equals(player) || sender.hasPermission("ranksuite.check.other") || !(sender instanceof Player)) {
             RankedPlayer p = promote(player.getName());
