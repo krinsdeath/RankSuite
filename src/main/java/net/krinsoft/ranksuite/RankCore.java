@@ -86,7 +86,6 @@ public class RankCore extends JavaPlugin {
 
         // create the leaderboard
         this.leaderTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
             public void run() {
                 buildLeaderboard();
             }
@@ -97,7 +96,6 @@ public class RankCore extends JavaPlugin {
 
         // register a scheduled task to update players dynamically
         this.updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
             public void run() {
                 for (String name : players.keySet()) {
                     promote(name);
@@ -108,7 +106,6 @@ public class RankCore extends JavaPlugin {
 
         // login task to handle players quickly without slowing down the server
         this.loginTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
             public void run() {
                 if (logins.size() > 0) {
                     for (String name : logins) {
@@ -173,7 +170,6 @@ public class RankCore extends JavaPlugin {
 
         // re-create the leaderboard
         this.leaderTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
             public void run() {
                 buildLeaderboard();
             }
@@ -181,7 +177,6 @@ public class RankCore extends JavaPlugin {
 
         // re-register a scheduled task to update players dynamically
         this.updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
             public void run() {
                 for (String name : players.keySet()) {
                     promote(name);
@@ -192,7 +187,6 @@ public class RankCore extends JavaPlugin {
 
         // login task to handle players quickly without slowing down the server
         this.loginTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
             public void run() {
                 if (logins.size() > 0) {
                     for (String name : logins) {
