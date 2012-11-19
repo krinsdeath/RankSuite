@@ -21,7 +21,6 @@ public class ResetCommand extends BaseCommand {
         setPermission("ranksuite.reset");
     }
 
-    @Override
     public void runCommand(CommandSender sender, List<String> args) {
         if (!checkPermission(sender)) {
             noPermission(sender);

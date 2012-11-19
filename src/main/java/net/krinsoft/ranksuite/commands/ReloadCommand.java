@@ -18,7 +18,6 @@ public class ReloadCommand extends BaseCommand {
         setPermission("ranksuite.reload");
     }
 
-    @Override
     public void runCommand(CommandSender sender, List<String> args) {
         if (!checkPermission(sender)) {
             noPermission(sender);

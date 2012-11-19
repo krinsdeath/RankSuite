@@ -53,7 +53,6 @@ public class RankCore extends JavaPlugin {
     private boolean log_ranks = true;
     private final List<String> promotion = new ArrayList<String>();
 
-    @Override
     public void onEnable() {
         // register the player join event
         RankListener listener = new RankListener(this);
@@ -121,7 +120,6 @@ public class RankCore extends JavaPlugin {
         }, 1L, 1L);
     }
 
-    @Override
     public void onDisable() {
         saveDB();
         getServer().getScheduler().cancelTasks(this);
@@ -130,7 +128,6 @@ public class RankCore extends JavaPlugin {
         getServer().getScheduler().cancelTask(this.loginTask);
     }
 
-    @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         commands.runCommand(sender, label, args);
         return true;

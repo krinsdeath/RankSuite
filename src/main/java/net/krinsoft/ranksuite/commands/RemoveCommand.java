@@ -21,7 +21,6 @@ public class RemoveCommand extends BaseCommand {
         setPermission("ranksuite.remove");
     }
 
-    @Override
     public void runCommand(CommandSender sender, List<String> args) {
         if (!checkPermission(sender)) {
             noPermission(sender);
