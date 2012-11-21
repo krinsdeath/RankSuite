@@ -5,7 +5,7 @@
     <groupId>net.krinsoft</groupId>
     <artifactId>ranksuite</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-delta</version>
+    <version>1.0</version>
     <name>RankSuite</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -65,34 +65,6 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <artifactSet>
-                                <includes>
-                                    <include>com.pneumaticraft.commandhandler:CommandHandler</include>
-                                </includes>
-                            </artifactSet>
-                            <relocations>
-                                <relocation>
-                                    <pattern>com.pneumaticraft.commandhandler</pattern>
-                                    <shadedPattern>com.pneumaticraft.commandhandler.privileges</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
             <plugin>
                 <groupId>com.google.code.maven-replacer-plugin</groupId>
                 <artifactId>maven-replacer-plugin</artifactId>
@@ -122,7 +94,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.4.2-R0.2-SNAPSHOT</version>
+            <version>1.4.5-R0.2-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <!-- End Bukkit -->
