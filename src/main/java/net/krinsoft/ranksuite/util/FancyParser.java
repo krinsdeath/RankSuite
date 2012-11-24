@@ -3,6 +3,9 @@ package net.krinsoft.ranksuite.util;
 /**
  * @author krinsdeath
  */
+/**
+ * @author krinsdeath
+ */
 public class FancyParser {
 
     /**
@@ -74,7 +77,7 @@ public class FancyParser {
 
     private static final String[] TENTHS = {
             "",
-            "",
+            "tenth",
             "twentieth",
             "thirtieth",
             "fortieth",

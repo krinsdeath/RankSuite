@@ -5,8 +5,9 @@
     <groupId>net.krinsoft</groupId>
     <artifactId>ranksuite</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>RankSuite</name>
+    <description>An automatic ranking plugin designed to promote players after specified amounts of play time.</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.number>DEV</project.build.number>
