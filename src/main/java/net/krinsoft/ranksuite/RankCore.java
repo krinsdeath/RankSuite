@@ -1,6 +1,7 @@
 package net.krinsoft.ranksuite;
 
 import net.krinsoft.ranksuite.commands.CommandHandler;
+import net.krinsoft.ranksuite.util.FancyParser;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -265,6 +266,21 @@ public class RankCore extends JavaPlugin {
     }
 
     /**
+     * Fetches the specified player's position in the leaderboards
+     * @param name The name of the player
+     * @return The player's position in the leaderboards
+     */
+    public int getLeader(String name) {
+        String[] array = leaders.keySet().toArray(new String[leaders.size()]);
+        for (int i = 0; i < array.length; i++) {
+            if (array[i].equalsIgnoreCase(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Fetches a RankedPlayer object for the specified player by their name
      * @param name The name of the player we're fetching
      * @return A RankedPlayer object representing the specified player
@@ -391,50 +407,25 @@ public class RankCore extends JavaPlugin {
                 // user qualified for a promotion
                 promote(player.getName());
             }
-            String name = (sender.equals(player) ? "You" : player.getName());
-            sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " are" : " is") + " in the rank: " + ChatColor.AQUA + p.getRank().getName());
-            sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + (sender.equals(player) ? " have" : " has") + " played for " + ChatColor.AQUA + toFancyTime(p.getTimePlayed()) + ChatColor.GREEN + ".");
+            boolean equal = sender.equals(player);
+            String name = (equal ? "You" : player.getName());
+            StringBuilder message = new StringBuilder();
+            message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(equal ? " are" : " is").append(" in the rank: ").append(ChatColor.AQUA).append(p.getRank().getName()).append("\n");
+            message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(equal ? " have" : " has").append(" played for ").append(ChatColor.AQUA).append(FancyParser.toFancyTime(p.getTimePlayed())).append(ChatColor.GREEN).append(".\n");
+            message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(equal ? " are" : " is").append(" ranked ").append(ChatColor.AQUA).append(FancyParser.toFancyOrdinal(getLeader(player.getName()) + 1)).append(ChatColor.GREEN).append(".\n");
             if (p.getRank().getNextRank() != null) {
                 Rank next = getRank(p.getRank().getNextRank());
                 if (next != null) {
-                    sender.sendMessage(ChatColor.AQUA + name + ChatColor.GREEN + " will rank up to " + ChatColor.AQUA + next.getName() + ChatColor.GREEN + " in " + ChatColor.AQUA + toFancyTime(next.getMinutesRequired() - p.getTimePlayed()) + ChatColor.GREEN + ".");
+                    message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(" will rank up to ").append(ChatColor.AQUA).append(next.getName()).append(ChatColor.GREEN).append(" in ").append(ChatColor.AQUA).append(FancyParser.toFancyTime(next.getMinutesRequired() - p.getTimePlayed())).append(ChatColor.GREEN).append(".\n");
                 }
+            }
+            for (String line : message.toString().split("\n")) {
+                sender.sendMessage(line);
             }
         }
         if (!player.isOnline()) {
             players.remove(player.getName());
         }
-    }
-
-    /**
-     * Creates a fancy formatted time string from the specified input minutes
-     * @param minutes The amount of minutes to format into a fancy time string
-     * @return The formatted fancy time string
-     */
-    public String toFancyTime(int minutes) {
-        if (minutes <= 0) {
-            return "0 minutes";
-        }
-        StringBuilder time = new StringBuilder();
-        int days = minutes / 60 / 24;
-        if (days > 0) {
-            time.append(days).append(" day").append(days > 1 ? "s" : "");
-        }
-        int hours = minutes / 60 % 24;
-        if (hours > 0) {
-            if (days > 0) {
-                time.append(", ");
-            }
-            time.append(hours).append(" hour").append(hours > 1 ? "s" : "");
-        }
-        minutes = minutes % 60;
-        if (minutes > 0) {
-            if (hours > 0) {
-                time.append(", ");
-            }
-            time.append(minutes).append(" minute").append(minutes > 1 ? "s": "");
-        }
-        return time.toString();
     }
 
     /**
