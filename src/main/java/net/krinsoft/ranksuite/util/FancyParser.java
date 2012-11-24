@@ -139,7 +139,17 @@ public class FancyParser {
                 ordinal.append(" ");
             }
             if (num / 10 > 0) {
-                ordinal.append(ORDINALS[num]);
+                if (num % 10 == 0) {
+                    ordinal.append(TENTHS[num / 10]);
+                } else {
+                    if (num <= 20) {
+                        ordinal.append(ORDINALS[num]);
+                    } else {
+                        ordinal.append(TENS[num / 10]);
+                        ordinal.append(" ");
+                        ordinal.append(ORDINALS[num % 10]);
+                    }
+                }
             }
         }
         return ordinal.toString();
