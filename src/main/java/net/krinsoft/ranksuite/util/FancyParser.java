@@ -3,9 +3,6 @@ package net.krinsoft.ranksuite.util;
 /**
  * @author krinsdeath
  */
-/**
- * @author krinsdeath
- */
 public class FancyParser {
 
     /**
