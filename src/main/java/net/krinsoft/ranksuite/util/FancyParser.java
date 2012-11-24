@@ -138,17 +138,15 @@ public class FancyParser {
                 }
                 ordinal.append(" ");
             }
-            if (num / 10 > 0) {
-                if (num % 10 == 0) {
-                    ordinal.append(TENTHS[num / 10]);
+            if (num % 10 == 0) {
+                ordinal.append(TENTHS[num / 10]);
+            } else {
+                if (num < 20) {
+                    ordinal.append(ORDINALS[num]);
                 } else {
-                    if (num <= 20) {
-                        ordinal.append(ORDINALS[num]);
-                    } else {
-                        ordinal.append(TENS[num / 10]);
-                        ordinal.append(" ");
-                        ordinal.append(ORDINALS[num % 10]);
-                    }
+                    ordinal.append(TENS[num / 10]);
+                    ordinal.append(" ");
+                    ordinal.append(ORDINALS[num % 10]);
                 }
             }
         }
