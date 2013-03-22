@@ -1,6 +1,8 @@
 package net.krinsoft.ranksuite;
 
 import net.krinsoft.ranksuite.commands.CommandHandler;
+import net.krinsoft.ranksuite.events.RankSuiteRankChangeEvent;
+import net.krinsoft.ranksuite.events.RankSuiteRankResetEvent;
 import net.krinsoft.ranksuite.util.FancyParser;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -373,6 +375,8 @@ public class RankCore extends JavaPlugin {
                     }
                 }
             }
+            RankSuiteRankChangeEvent event = new RankSuiteRankChangeEvent(name, player.getRank().getName(), next.getName());
+            getServer().getPluginManager().callEvent(event);
             player.setRank(next);
         }
         if (promoted.isOnline()) {
@@ -454,6 +458,8 @@ public class RankCore extends JavaPlugin {
      * @param base The player's new rank
      */
     public void reset(String name, String rank, String base) {
+        RankSuiteRankResetEvent event = new RankSuiteRankResetEvent(name, base);
+        getServer().getPluginManager().callEvent(event);
         Plugin plg = this.getServer().getPluginManager().getPlugin("bPermissions");
         if (plg != null) {
             getServer().dispatchCommand(getServer().getConsoleSender(), String.format("exec u:%s a:rmgroup v:%s", name, rank));
