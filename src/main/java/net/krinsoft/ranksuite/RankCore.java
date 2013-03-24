@@ -158,6 +158,9 @@ public class RankCore extends JavaPlugin {
         getServer().getScheduler().cancelTask(this.loginTask);
 
         reloadConfig();
+        getConfig().options().header(
+                "You should always have one group whose time required is 0 minutes.\n" +
+                "Otherwise RankSuite won't know what rank to put you in when you first start.");
         this.debug = getConfig().getBoolean("plugin.debug", false);
         this.log_ranks = getConfig().getBoolean("plugin.log_rankups", true);
         this.promotion.clear();
@@ -312,14 +315,20 @@ public class RankCore extends JavaPlugin {
     public Rank getRank(int mins) {
         if (mins < 0) { mins = 0; }
         int highest = 0;
-        Rank match = null;
+        int lowest = Integer.MAX_VALUE;
+        Rank bottom = null;
+        Rank top = null;
         for (Rank r : ranks.values()) {
             if (r.getMinutesRequired() <= mins && r.getMinutesRequired() >= highest) {
                 highest = r.getMinutesRequired();
-                match = r;
+                top = r;
+            }
+            if (r.getMinutesRequired() <= lowest) {
+                lowest = r.getMinutesRequired();
+                bottom = r;
             }
         }
-        return match;
+        return top == null ? bottom : top;
     }
 
     /**
@@ -352,6 +361,10 @@ public class RankCore extends JavaPlugin {
         if (player == null) {
             int minutes = getDB().getInt(name.toLowerCase(), 0);
             Rank rank = getRank(minutes);
+            if (rank == null) {
+                getLogger().info("No matching rank was found! Check config.yml for invalid syntax.");
+                rank = ranks.values().toArray(new Rank[ranks.size()])[0];
+            }
             debug(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
             boolean exempt = !promoted.isOnline() || promoted.getPlayer().hasPermission("ranksuite.exempt");
             player = new RankedPlayer(this, name, rank, minutes, System.currentTimeMillis(), exempt);
