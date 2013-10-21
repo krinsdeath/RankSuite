@@ -148,6 +148,10 @@ public class RankCore extends JavaPlugin {
         }
     }
 
+    public CommandHandler getCommandHandler() {
+        return this.commands;
+    }
+
     /**
      * Attempts to reload the plugin's configuration file and restart the plugin tasks
      */

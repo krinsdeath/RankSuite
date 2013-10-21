@@ -57,17 +57,7 @@ public class ValidateCommand extends BaseCommand {
                 Set<Rank> ranks = this.plugin.getRanks();
                 ConsoleCommandSender console = this.plugin.getServer().getConsoleSender();
                 for (String p : this.plugin.getDB().getKeys(false)) {
-                    if (this.plugin.getDB().getInt(p) == 0) {
-                        this.plugin.getDB().set(p, null);
-                        this.plugin.debug("Removing '" + p + "' from rankings.");
-                        continue;
-                    }
-                    OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(p);
-                    if (player == null) { continue; }
-                    for (Rank rank : ranks) {
-                        this.plugin.getServer().dispatchCommand(console, String.format(rm, player.getName(), rank.getName()));
-                    }
-                    this.plugin.getServer().dispatchCommand(console, String.format(add, player.getName(), this.plugin.getRank(this.plugin.getDB().getInt(p)).getName()));
+                    resetUser(p);
                 }
             } catch (NullPointerException e) {
                 sender.sendMessage(ChatColor.RED + "Something went wrong while validating the user's ranks! Check server log for details.");
@@ -79,6 +69,24 @@ public class ValidateCommand extends BaseCommand {
             return;
         }
         sender.sendMessage(ChatColor.RED + "Validation failed. No compatible permissions plugin was found.");
+    }
+
+    public boolean resetUser(String user) {
+        ConsoleCommandSender console = plugin.getServer().getConsoleSender();
+        Set<Rank> ranks = this.plugin.getRanks();
+        OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(user);
+        if (player == null) { return false; }
+        user = player.getName().toLowerCase();
+        if (this.plugin.getDB().getInt(user) == 0) {
+            this.plugin.getDB().set(user, null);
+            this.plugin.debug("Removing '" + user + "' from rankings.");
+            return true;
+        }
+        for (Rank rank : ranks) {
+            this.plugin.getServer().dispatchCommand(console, String.format(rm, player.getName(), rank.getName()));
+        }
+        this.plugin.getServer().dispatchCommand(console, String.format(add, player.getName(), this.plugin.getRank(this.plugin.getDB().getInt(user)).getName()));
+        return true;
     }
 
 }

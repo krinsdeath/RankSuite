@@ -26,6 +26,7 @@ public class CommandHandler {
         commands.put("reset", new ResetCommand(plugin));
         commands.put("leaders", new LeaderCommand(plugin));
         commands.put("reload", new ReloadCommand(plugin));
+        commands.put("fix", new FixCommand(plugin));
         commands.put("validate", new ValidateCommand(plugin));
     }
 
@@ -46,6 +47,10 @@ public class CommandHandler {
             return;
         }
         cmd.runCommand(sender, arguments);
+    }
+
+    protected Command getCommand(String name) {
+        return commands.get(name);
     }
 
 }
