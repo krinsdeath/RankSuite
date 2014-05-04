@@ -28,6 +28,7 @@ public class CommandHandler {
         commands.put("reload", new ReloadCommand(plugin));
         commands.put("fix", new FixCommand(plugin));
         commands.put("validate", new ValidateCommand(plugin));
+        commands.put("convert", new ConvertCommand(plugin));
     }
 
     public void runCommand(CommandSender sender, String label, String[] args) {
