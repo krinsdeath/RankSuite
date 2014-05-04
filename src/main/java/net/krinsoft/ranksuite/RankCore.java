@@ -319,16 +319,18 @@ public class RankCore extends JavaPlugin {
      * @param name The name of the player
      */
     public void transfer(String name, UUID uuid) {
-    	//Means we have already converted
+    	//Check if we already converted
     	if(this.getPlayersDB().getInt(name) == -1) {
     		return;
     	}
     	if(this.getUuidDB().getInt(uuid.toString()) == 0) {
-    		int time = this.getPlayersDB().getInt(name);
+    		int time = this.getPlayersDB().getInt(name.toLowerCase());
     		debug("Converted [" + name + "] to [" + uuid.toString() + "] in storage, with [" + time + "] minutes");
         	this.getUuidDB().set(uuid.toString(), time);
         	this.getPlayersDB().set(name, -1);
         	this.savePlayersDB();
+        	this.saveUuidDB();
+        	this.buildLeaderboard();
     	}
     }
 
