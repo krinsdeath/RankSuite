@@ -255,7 +255,7 @@ public class RankCore extends JavaPlugin {
     /**
      * Populates the Leaderboard hashmap to maintain efficiency
      */
-    private void buildLeaderboard() {
+    public void buildLeaderboard() {
         debug("Initializing leaderboards...");
         Map<String, Integer> leaders = new LinkedHashMap<String, Integer>();
         //Switch to UUIDs
@@ -327,7 +327,7 @@ public class RankCore extends JavaPlugin {
     		int time = this.getPlayersDB().getInt(name.toLowerCase());
     		debug("Converted [" + name + "] to [" + uuid.toString() + "] in storage, with [" + time + "] minutes");
         	this.getUuidDB().set(uuid.toString(), time);
-        	this.getPlayersDB().set(name, -1);
+        	this.getPlayersDB().set(name.toLowerCase(), -1);
         	this.savePlayersDB();
         	this.saveUuidDB();
         	this.buildLeaderboard();
