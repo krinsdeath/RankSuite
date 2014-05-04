@@ -41,7 +41,7 @@ public class AddCommand extends BaseCommand {
             sender.sendMessage(ChatColor.RED + "Time added must be a " + ChatColor.GREEN + "positive number" + ChatColor.RED + ".");
             return;
         }
-        plugin.getPlayer(target.getName()).addTime(mins);
+        plugin.getPlayer(target.getUniqueId()).addTime(mins);
         sender.sendMessage(ChatColor.AQUA + String.valueOf(mins) + ChatColor.GREEN + " minute" + (mins > 1 ? "s have" : " has") + " been added to " + ChatColor.AQUA + target.getName() + ChatColor.GREEN + ".");
     }
 

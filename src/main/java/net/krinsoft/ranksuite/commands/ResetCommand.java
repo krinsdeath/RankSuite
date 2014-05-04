@@ -31,7 +31,7 @@ public class ResetCommand extends BaseCommand {
             sender.sendMessage(ChatColor.RED + "No player found with the name '" + ChatColor.GREEN + args.get(0) + ChatColor.RED + "'!");
             return;
         }
-        RankedPlayer player = plugin.getPlayer(target.getName());
+        RankedPlayer player = plugin.getPlayer(target.getUniqueId());
         int time = player.getTimePlayed();
         player.reset();
         sender.sendMessage(ChatColor.AQUA + target.getName() + ChatColor.RED + "'s playtime has been reset!");

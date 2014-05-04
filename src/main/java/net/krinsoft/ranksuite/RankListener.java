@@ -1,5 +1,6 @@
 package net.krinsoft.ranksuite;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -18,12 +19,14 @@ public class RankListener implements Listener {
 
     @EventHandler
     void playerJoin(PlayerJoinEvent event) {
-        plugin.login(event.getPlayer().getName());
+    	Player player = event.getPlayer();
+    	plugin.transfer(player.getName(), player.getUniqueId());
+        plugin.login(player.getUniqueId());
     }
 
     @EventHandler
     void playerQuit(PlayerQuitEvent event) {
-        plugin.retire(event.getPlayer().getName());
+        plugin.retire(event.getPlayer().getUniqueId());
     }
 
 }

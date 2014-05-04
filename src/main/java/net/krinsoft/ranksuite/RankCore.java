@@ -4,6 +4,8 @@ import net.krinsoft.ranksuite.commands.CommandHandler;
 import net.krinsoft.ranksuite.events.RankSuiteRankChangeEvent;
 import net.krinsoft.ranksuite.events.RankSuiteRankResetEvent;
 import net.krinsoft.ranksuite.util.FancyParser;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -27,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -38,10 +41,12 @@ public class RankCore extends JavaPlugin {
     private final static Pattern NEXT = Pattern.compile("\\[new\\]");
     private final static Pattern USER = Pattern.compile("\\[user\\]");
 
-    private FileConfiguration db;
+    @Deprecated
+    private FileConfiguration players_db;
+    private FileConfiguration uuids_db;
 
     private LinkedHashMap<String, Integer> leaders = new LinkedHashMap<String, Integer>();
-    private LinkedList<String> logins = new LinkedList<String>();
+    private LinkedList<UUID> logins = new LinkedList<UUID>();
 
     private int leaderTask;
     private int updateTask;
@@ -50,7 +55,7 @@ public class RankCore extends JavaPlugin {
     private CommandHandler commands;
 
     private Map<String, Rank> ranks = new HashMap<String, Rank>();
-    private Map<String, RankedPlayer> players = new HashMap<String, RankedPlayer>();
+    private Map<UUID, RankedPlayer> players = new HashMap<UUID, RankedPlayer>();
 
     private boolean debug = false;
     private boolean log_ranks = true;
@@ -85,7 +90,7 @@ public class RankCore extends JavaPlugin {
                 getLogger().info("Rankings imported.");
             }
         }
-        getDB();
+        getUuidDB();
 
         // create the leaderboard
         this.leaderTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -100,10 +105,10 @@ public class RankCore extends JavaPlugin {
         // register a scheduled task to update players dynamically
         this.updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             public void run() {
-                for (String name : players.keySet()) {
-                    promote(name);
+                for (UUID uuid : players.keySet()) {
+                    promote(uuid);
                 }
-                saveDB();
+                saveUuidDB();
             }
         }, 1L, 6000L);
 
@@ -111,8 +116,8 @@ public class RankCore extends JavaPlugin {
         this.loginTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             public void run() {
                 if (logins.size() > 0) {
-                    for (String name : logins) {
-                        promote(name);
+                    for (UUID uuid : logins) {
+                        promote(uuid);
                     }
                     logins.clear();
                 }
@@ -121,7 +126,7 @@ public class RankCore extends JavaPlugin {
     }
 
     public void onDisable() {
-        saveDB();
+    	saveUuidDB();
         getServer().getScheduler().cancelTasks(this);
         getServer().getScheduler().cancelTask(this.leaderTask);
         getServer().getScheduler().cancelTask(this.updateTask);
@@ -133,18 +138,35 @@ public class RankCore extends JavaPlugin {
         return true;
     }
 
-    public FileConfiguration getDB() {
-        if (db == null) {
-            db = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "players.db"));
+    @Deprecated
+    public FileConfiguration getPlayersDB() {
+        if (players_db == null) {
+            players_db = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "players.db"));
         }
-        return db;
+        return players_db;
     }
 
-    public void saveDB() {
+    @Deprecated
+    public void savePlayersDB() {
         try {
-            db.save(new File(getDataFolder(), "players.db"));
+            players_db.save(new File(getDataFolder(), "players.db"));
         } catch (IOException e) {
             getLogger().warning("An error occurred while saving the players database.");
+        }
+    }
+    
+    public FileConfiguration getUuidDB() {
+    	 if (uuids_db == null) {
+    		 uuids_db = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "uuids.db"));
+         }
+         return uuids_db;
+    }
+    
+    public void saveUuidDB() {
+        try {
+        	uuids_db.save(new File(getDataFolder(), "uuids.db"));
+        } catch (IOException e) {
+            getLogger().warning("An error occurred while saving the uuids database.");
         }
     }
 
@@ -188,10 +210,10 @@ public class RankCore extends JavaPlugin {
         // re-register a scheduled task to update players dynamically
         this.updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             public void run() {
-                for (String name : players.keySet()) {
-                    promote(name);
+                for (UUID uuid : players.keySet()) {
+                    promote(uuid);
                 }
-                saveDB();
+                saveUuidDB();
             }
         }, 1L, 6000L);
 
@@ -199,8 +221,8 @@ public class RankCore extends JavaPlugin {
         this.loginTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             public void run() {
                 if (logins.size() > 0) {
-                    for (String name : logins) {
-                        promote(name);
+                    for (UUID uuid : logins) {
+                        promote(uuid);
                     }
                     logins.clear();
                 }
@@ -236,8 +258,11 @@ public class RankCore extends JavaPlugin {
     private void buildLeaderboard() {
         debug("Initializing leaderboards...");
         Map<String, Integer> leaders = new LinkedHashMap<String, Integer>();
-        for (String key : getDB().getKeys(false)) {
-            leaders.put(key, getDB().getInt(key));
+        //Switch to UUIDs
+        for (String key : getUuidDB().getKeys(false)) {
+        	UUID uuid = UUID.fromString(key);
+        	OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+            leaders.put(op.getName(), getUuidDB().getInt(key));
         }
         LinkedList<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(leaders.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
@@ -288,16 +313,34 @@ public class RankCore extends JavaPlugin {
         }
         return -1;
     }
+    
+    /**
+     * One time method to move data from players.db to uuids.db
+     * @param name The name of the player
+     */
+    public void transfer(String name, UUID uuid) {
+    	//Means we have already converted
+    	if(this.getPlayersDB().getInt(name) == -1) {
+    		return;
+    	}
+    	if(this.getUuidDB().getInt(uuid.toString()) == 0) {
+    		int time = this.getPlayersDB().getInt(name);
+    		debug("Converted [" + name + "] to [" + uuid.toString() + "] in storage, with [" + time + "] minutes");
+        	this.getUuidDB().set(uuid.toString(), time);
+        	this.getPlayersDB().set(name, -1);
+        	this.savePlayersDB();
+    	}
+    }
 
     /**
      * Fetches a RankedPlayer object for the specified player by their name
-     * @param name The name of the player we're fetching
+     * @param name The UUID of the player we're fetching
      * @return A RankedPlayer object representing the specified player
      */
-    public RankedPlayer getPlayer(String name) {
-        RankedPlayer player = players.get(name);
+    public RankedPlayer getPlayer(UUID uuid) {
+        RankedPlayer player = players.get(uuid);
         if (player == null) {
-            player = promote(name);
+            player = promote(uuid);
         }
         return player;
     }
@@ -347,23 +390,25 @@ public class RankCore extends JavaPlugin {
      * Adds the specified player name to the login queue
      * @param name The name of the player who has just logged in
      */
-    public void login(final String name) {
-        logins.add(name);
+    public void login(final UUID uuid) {
+        logins.add(uuid);
     }
 
     /**
      * Checks whether the specified player is qualified for a promotion, and promotes them if they are
-     * @param name The name of the player
+     * @param uuid The UUID of the player
      */
-    public RankedPlayer promote(final String name) {
-        final OfflinePlayer promoted = getServer().getOfflinePlayer(name);
+    public RankedPlayer promote(final UUID uuid) {
+        final OfflinePlayer promoted = getServer().getOfflinePlayer(uuid);       
         if (promoted == null) {
             getLogger().warning("Something went wrong... a fetched player was null!");
             return null;
         }
-        RankedPlayer player = players.get(name);
+        final String name = promoted.getName();
+        RankedPlayer player = players.get(uuid);
         if (player == null) {
-            int minutes = getDB().getInt(name.toLowerCase(), 0);
+        	//Switch to new DB, using UUIDs
+            int minutes = getUuidDB().getInt(uuid.toString(), 0);
             Rank rank = getRank(minutes);
             if (rank == null) {
                 getLogger().info("No matching rank was found! Check config.yml for invalid syntax.");
@@ -371,7 +416,7 @@ public class RankCore extends JavaPlugin {
             }
             debug(name + " determined to be " + rank.getName() + " with " + minutes + " minute(s) played.");
             boolean exempt = !promoted.isOnline() || promoted.getPlayer().hasPermission("ranksuite.exempt");
-            player = new RankedPlayer(this, name, rank, minutes, System.currentTimeMillis(), exempt);
+            player = new RankedPlayer(this, name, uuid, rank, minutes, System.currentTimeMillis(), exempt);
         }
         if (player.addTime()) {
             // player is qualified for a promotion
@@ -397,19 +442,20 @@ public class RankCore extends JavaPlugin {
             player.setRank(next);
         }
         if (promoted.isOnline()) {
-            players.put(name, player);
+            players.put(uuid, player);
         }
         return player;
     }
 
     /**
      * Checks for a promotion for the specified player and then destroys their currently loaded object
-     * @param name The name of the player who is retiring
+     * @param uuid The UUID of the player who is retiring
      */
-    public void retire(String name) {
-        promote(name);
-        RankedPlayer p = players.remove(name);
-        debug(name + " has retired as a '" + p.getRank().getName() + "'");
+    public void retire(UUID uuid) {
+        promote(uuid);
+        RankedPlayer p = players.remove(uuid);
+        OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+        debug(op.getName() + " has retired as a '" + p.getRank().getName() + "'");
     }
 
     /**
@@ -419,14 +465,15 @@ public class RankCore extends JavaPlugin {
      */
     public void checkRank(CommandSender sender, OfflinePlayer player) {
         if (sender.equals(player) || sender.hasPermission("ranksuite.check.other") || !(sender instanceof Player)) {
-            RankedPlayer p = promote(player.getName());
+        	UUID uuid = player.getUniqueId();
+            RankedPlayer p = promote(uuid);
             if (p == null) {
                 sender.sendMessage(ChatColor.RED + "Something went wrong.");
                 return;
             }
             if (p.addTime()) {
                 // user qualified for a promotion
-                promote(player.getName());
+                promote(uuid);
             }
             boolean equal = sender.equals(player);
             String name = (equal ? "You" : player.getName());
@@ -451,30 +498,31 @@ public class RankCore extends JavaPlugin {
 
     /**
      * Resets the specified player to the default rank.
-     * @param name The name of the player being reset.
+     * @param uuid The UUID of the player being reset.
      */
-    public void reset(String name) {
-        RankedPlayer p = getPlayer(name);
-        reset(name, p.getRank().getName());
+    public void reset(UUID uuid) {
+        RankedPlayer p = getPlayer(uuid);
+        reset(uuid, p.getRank().getName());
     }
 
     /**
      * Uses the specified player name and rank name to reset a player to the default rank
-     * @param name The name of the player
+     * @param uuid The UUID of the player
      * @param rank The rank being removed from the player
      */
-    public void reset(String name, String rank) {
+    public void reset(UUID uuid, String rank) {
         Rank base = getRank(0);
-        reset(name, rank, base.getName());
+        reset(uuid, rank, base.getName());
     }
 
     /**
      * Resets the specified player to the specified base rank and removes the 'rank' from the player.
-     * @param name The name of the player
+     * @param uuid The UUID of the player
      * @param rank The rank being removed from the player
      * @param base The player's new rank
      */
-    public void reset(String name, String rank, String base) {
+    public void reset(UUID uuid, String rank, String base) {
+    	final String name = Bukkit.getOfflinePlayer(uuid).getName();
         RankSuiteRankResetEvent event = new RankSuiteRankResetEvent(name, base);
         getServer().getPluginManager().callEvent(event);
         Plugin plg = this.getServer().getPluginManager().getPlugin("bPermissions");
