@@ -1,5 +1,9 @@
 package net.krinsoft.ranksuite.commands;
 
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import net.krinsoft.ranksuite.Rank;
 import net.krinsoft.ranksuite.RankCore;
 
@@ -8,10 +12,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.Plugin;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author krinsdeath

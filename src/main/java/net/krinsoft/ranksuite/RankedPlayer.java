@@ -86,6 +86,6 @@ public class RankedPlayer {
 		this.login = System.currentTimeMillis();
 		this.plugin.reset(this.uuid, this.current.getName());
 		this.current = plugin.getRank(0);
-        this.plugin.getUuidDB().set(this.uuid.toString(), null);
+		this.plugin.getUuidDB().set(this.uuid.toString(), null);
 	}
 }

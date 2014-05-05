@@ -11,22 +11,22 @@ import org.bukkit.event.player.PlayerQuitEvent;
  */
 public class RankListener implements Listener {
 
-    private RankCore plugin;
+	private RankCore plugin;
 
-    public RankListener(RankCore plugin) {
-        this.plugin = plugin;
-    }
+	public RankListener(RankCore plugin) {
+		this.plugin = plugin;
+	}
 
-    @EventHandler
-    void playerJoin(PlayerJoinEvent event) {
-    	Player player = event.getPlayer();
-    	plugin.transfer(player.getName(), player.getUniqueId());
-        plugin.login(player.getUniqueId());
-    }
+	@EventHandler
+	void playerJoin(PlayerJoinEvent event) {
+		Player player = event.getPlayer();
+		plugin.transfer(player.getName(), player.getUniqueId());
+		plugin.login(player.getUniqueId());
+	}
 
-    @EventHandler
-    void playerQuit(PlayerQuitEvent event) {
-        plugin.retire(event.getPlayer().getUniqueId());
-    }
+	@EventHandler
+	void playerQuit(PlayerQuitEvent event) {
+		plugin.retire(event.getPlayer().getUniqueId());
+	}
 
 }
