@@ -2,6 +2,7 @@ package net.krinsoft.ranksuite.commands;
 
 import net.krinsoft.ranksuite.Rank;
 import net.krinsoft.ranksuite.RankCore;
+
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -10,6 +11,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author krinsdeath
@@ -56,36 +58,38 @@ public class ValidateCommand extends BaseCommand {
             try {
                 Set<Rank> ranks = this.plugin.getRanks();
                 ConsoleCommandSender console = this.plugin.getServer().getConsoleSender();
-                for (String p : this.plugin.getDB().getKeys(false)) {
-                    resetUser(p);
+                for (String p : this.plugin.getUuidDB().getKeys(false)) {
+                	UUID uuid = UUID.fromString(p);
+                    resetUser(uuid);
                 }
             } catch (NullPointerException e) {
                 sender.sendMessage(ChatColor.RED + "Something went wrong while validating the user's ranks! Check server log for details.");
                 e.printStackTrace();
                 return;
             }
-            this.plugin.saveDB();
+            this.plugin.saveUuidDB();
             sender.sendMessage(String.format(ChatColor.GREEN + "[RankSuite] All users validated in %1$dms.", (System.nanoTime() - time) / 1000000));
             return;
         }
         sender.sendMessage(ChatColor.RED + "Validation failed. No compatible permissions plugin was found.");
     }
 
-    public boolean resetUser(String user) {
+    public boolean resetUser(UUID uuid) {
         ConsoleCommandSender console = plugin.getServer().getConsoleSender();
         Set<Rank> ranks = this.plugin.getRanks();
-        OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(user);
+        OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(uuid);
         if (player == null) { return false; }
-        user = player.getName().toLowerCase();
-        if (this.plugin.getDB().getInt(user) == 0) {
-            this.plugin.getDB().set(user, null);
-            this.plugin.debug("Removing '" + user + "' from rankings.");
+        final String name = player.getName();
+        int time = this.plugin.getUuidDB().getInt(uuid.toString());
+        if (time == 0) {
+        	this.plugin.getUuidDB().set(uuid.toString(), null);
+            this.plugin.debug("Removing '" + player.getName() + "' from rankings.");
             return true;
         }
         for (Rank rank : ranks) {
             this.plugin.getServer().dispatchCommand(console, String.format(rm, player.getName(), rank.getName()));
         }
-        this.plugin.getServer().dispatchCommand(console, String.format(add, player.getName(), this.plugin.getRank(this.plugin.getDB().getInt(user)).getName()));
+        this.plugin.getServer().dispatchCommand(console, String.format(add, player.getName(), plugin.getRank(time)));
         return true;
     }
 

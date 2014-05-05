@@ -1,6 +1,8 @@
 package net.krinsoft.ranksuite.commands;
 
 import net.krinsoft.ranksuite.RankCore;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -21,7 +23,8 @@ public class FixCommand extends BaseCommand {
 
     public void runCommand(CommandSender sender, List<String> args) {
         ValidateCommand command = (ValidateCommand) plugin.getCommandHandler().getCommand("validate");
-        boolean reset = command.resetUser(args.get(0));
+        org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(args.get(0));
+        boolean reset = command.resetUser(op.getUniqueId());
         if (reset) {
             sender.sendMessage(ChatColor.GREEN + "The player '" + ChatColor.AQUA + args.get(0) + ChatColor.GREEN + "' was successfully fixed.");
         } else {

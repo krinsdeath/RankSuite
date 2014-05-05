@@ -1,5 +1,7 @@
 package net.krinsoft.ranksuite;
 
+import java.util.UUID;
+
 /**
  * @author krinsdeath
  */
@@ -8,14 +10,16 @@ public class RankedPlayer {
     private RankCore plugin;
     private String name;
     private Rank current;
+    private UUID uuid;
     private double minutes;
     private long login;
     private boolean exempt;
 
-    public RankedPlayer(RankCore plugin, String name, Rank rank, int minutes, long login, boolean exempt) {
+    public RankedPlayer(RankCore plugin, String name, UUID uuid, Rank rank, int minutes, long login, boolean exempt) {
         this.plugin = plugin;
         this.name = name;
         this.current = rank;
+        this.uuid = uuid;
         this.minutes = minutes;
         this.login = login;
         this.exempt = exempt;
@@ -38,7 +42,7 @@ public class RankedPlayer {
         this.minutes += ((time - this.login) / 1000 / 60);
         this.login = time;
         if (this.minutes > 0) {
-            plugin.getDB().set(this.name.toLowerCase(), (int) this.minutes);
+        	plugin.getUuidDB().set(this.uuid.toString(), (int) this.minutes);
         }
         if (!exempt && this.current.getNextRank() != null && !this.current.getNextRank().equals("none")) {
             Rank next = plugin.getRank(this.current.getNextRank());
@@ -62,12 +66,12 @@ public class RankedPlayer {
         this.minutes -= mins;
         if (this.minutes < 0) {
             this.minutes = 0;
-            this.plugin.getDB().set(this.name.toLowerCase(), null);
+            this.plugin.getUuidDB().set(this.uuid.toString(), null);
             return;
         }
         Rank down = this.plugin.getRank((int) this.minutes);
         if (!down.getName().equals(this.current.getName())) {
-            plugin.reset(this.name, this.current.getName(), down.getName());
+        	plugin.reset(this.uuid, this.current.getName(), down.getName());
             this.current = down;
         }
         addTime();
@@ -76,9 +80,12 @@ public class RankedPlayer {
     public void reset() {
         this.minutes = 0;
         this.login = System.currentTimeMillis();
-        this.plugin.reset(this.name, this.current.getName());
+        this.plugin.reset(this.uuid, this.current.getName());
         this.current = plugin.getRank(0);
-        this.plugin.getDB().set(this.name.toLowerCase(), null);
+        this.plugin.getUuidDB().set(this.uuid.toString(), null);
     }
 
+    public String getName() {
+    	return this.name;
+    }
 }
