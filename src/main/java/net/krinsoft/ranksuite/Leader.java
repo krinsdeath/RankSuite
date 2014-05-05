@@ -1,22 +1,25 @@
 package net.krinsoft.ranksuite;
 
+import java.util.UUID;
+
 /**
  * @author krinsdeath
  */
 public class Leader {
-    private final String name;
+    private final UUID uuid;
     private final int minutes;
 
-    public Leader(String name, int minutes) {
-        this.name = name;
-        this.minutes = minutes;
+    
+    public Leader(UUID uuid, int minutes) {
+    	   this.uuid = uuid;
+           this.minutes = minutes;
     }
 
     public final int getTimePlayed() {
         return this.minutes;
     }
 
-    public final String getName() {
-        return this.name;
+    public final UUID getUUID() {
+        return this.uuid;
     }
 }

@@ -45,7 +45,7 @@ public class RankCore extends JavaPlugin {
     private FileConfiguration players_db;
     private FileConfiguration uuids_db;
 
-    private LinkedHashMap<String, Integer> leaders = new LinkedHashMap<String, Integer>();
+    private LinkedHashMap<UUID, Integer> leaders = new LinkedHashMap<UUID, Integer>();
     private LinkedList<UUID> logins = new LinkedList<UUID>();
 
     private int leaderTask;
@@ -257,21 +257,20 @@ public class RankCore extends JavaPlugin {
      */
     public void buildLeaderboard() {
         debug("Initializing leaderboards...");
-        Map<String, Integer> leaders = new LinkedHashMap<String, Integer>();
+        Map<UUID, Integer> leaders = new LinkedHashMap<UUID, Integer>();
         //Switch to UUIDs
         for (String key : getUuidDB().getKeys(false)) {
         	UUID uuid = UUID.fromString(key);
-        	OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
-            leaders.put(op.getName(), getUuidDB().getInt(key));
+            leaders.put(uuid, getUuidDB().getInt(uuid.toString()));
         }
-        LinkedList<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(leaders.entrySet());
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+        LinkedList<Map.Entry<UUID, Integer>> list = new LinkedList<Map.Entry<UUID, Integer>>(leaders.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<UUID, Integer>>() {
+            public int compare(Map.Entry<UUID, Integer> o1, Map.Entry<UUID, Integer> o2) {
                 return o2.getValue().compareTo(o1.getValue());
             }
         });
         this.leaders.clear();
-        for (Map.Entry<String, Integer> entry : list) {
+        for (Map.Entry<UUID, Integer> entry : list) {
             this.leaders.put(entry.getKey(), entry.getValue());
         }
         debug("Leaderboards built.");
@@ -291,7 +290,7 @@ public class RankCore extends JavaPlugin {
             search = leaders.size();
         }
         LinkedHashMap<Integer, Leader> map = new LinkedHashMap<Integer, Leader>();
-        String[] array = leaders.keySet().toArray(new String[leaders.size()]);
+        UUID[] array = leaders.keySet().toArray(new UUID[leaders.size()]);
 
         for (int i = page * 10; i < search; i++) {
             map.put(i, new Leader(array[i], leaders.get(array[i])));
@@ -304,10 +303,10 @@ public class RankCore extends JavaPlugin {
      * @param name The name of the player
      * @return The player's position in the leaderboards
      */
-    public int getLeader(String name) {
-        String[] array = leaders.keySet().toArray(new String[leaders.size()]);
+    public int getLeader(UUID uuid) {
+    	UUID[] array = leaders.keySet().toArray(new UUID[leaders.size()]);
         for (int i = 0; i < array.length; i++) {
-            if (array[i].equalsIgnoreCase(name)) {
+            if (array[i] == uuid) {
                 return i;
             }
         }
@@ -320,7 +319,7 @@ public class RankCore extends JavaPlugin {
      */
     public void transfer(String name, UUID uuid) {
     	//Check if we already converted
-    	if(this.getPlayersDB().getInt(name) == -1) {
+    	if(this.getPlayersDB().getInt(name.toLowerCase()) == -1) {
     		return;
     	}
     	if(this.getUuidDB().getInt(uuid.toString()) == 0) {
@@ -482,7 +481,7 @@ public class RankCore extends JavaPlugin {
             StringBuilder message = new StringBuilder();
             message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(equal ? " are" : " is").append(" in the rank: ").append(ChatColor.AQUA).append(p.getRank().getName()).append("\n");
             message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(equal ? " have" : " has").append(" played for ").append(ChatColor.AQUA).append(FancyParser.toFancyTime(p.getTimePlayed())).append(ChatColor.GREEN).append(".\n");
-            message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(equal ? " are" : " is").append(" ranked ").append(ChatColor.AQUA).append(FancyParser.toFancyOrdinal(getLeader(player.getName()) + 1)).append(ChatColor.GREEN).append(".\n");
+            message.append(ChatColor.AQUA).append(name).append(ChatColor.GREEN).append(equal ? " are" : " is").append(" ranked ").append(ChatColor.AQUA).append(FancyParser.toFancyOrdinal(getLeader(uuid) + 1)).append(ChatColor.GREEN).append(".\n");
             if (p.getRank().getNextRank() != null) {
                 Rank next = getRank(p.getRank().getNextRank());
                 if (next != null) {
